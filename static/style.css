@@ -549,3 +549,32 @@ a {
     transform: translateY(-2px);
     opacity: 0.9;
 }
+
+@media screen and (max-width: 768px){
+
+    .main-container,
+    .auth-container{
+        width: 90%;
+        padding: 25px;
+    }
+
+    .logo{
+        font-size: 32px;
+    }
+
+    .choice-btn,
+    button{
+        width: 100%;
+        font-size: 15px;
+    }
+
+    .top-menu{
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .winner-card h1{
+        font-size: 28px;
+    }
+}
