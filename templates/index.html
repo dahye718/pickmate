@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PickMate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="bg-circle circle1"></div>
+<div class="bg-circle circle2"></div>
+<div class="bg-circle circle3"></div>
+
+<div class="main-container">
+
+    <div class="top-menu">
+        <p>{{ user }}님 환영합니다 👋</p>
+
+        <div>
+            <a href="/mypage">마이페이지</a>
+            <span style="color:#cbd5e1;"> | </span>
+            <a href="/logout">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="logo">✨ PickMate</div>
+    <p class="subtitle">고민되는 선택을 도와주는 나만의 선택 메이트</p>
+    
+    <div class="info-card">
+        <h3>🎯 PickMate 사용 방법</h3>
+
+        <div class="step">
+            <span>1</span>
+            선택지 2개 입력
+        </div>
+
+        <div class="step">
+            <span>2</span>
+            질문에 답하기
+        </div>
+
+        <div class="step">
+            <span>3</span>
+            PickMate 추천 받기
+        </div>
+    </div>
+
+    <div class="input-area" id="inputArea">
+        <label>카테고리 선택</label>
+        <select id="category">
+            <option value="cafe">카페</option>
+            <option value="food">식당</option>
+            <option value="travel">여행</option>
+            <option value="study">공부</option>
+            <option value="date">데이트</option>
+        </select>
+
+        <input type="text" id="placeA" placeholder="첫 번째 장소 입력">
+        <input type="text" id="placeB" placeholder="두 번째 장소 입력">
+
+        <button onclick="startGame()">✨ 추천 테스트 시작</button>
+        <button class="sub-btn" onclick="randomPick()">🎲 랜덤으로 결정하기</button>
+    </div>
+
+    <div id="questionBox"></div>
+    <div id="result"></div>
+
+</div>
+
+<script>
+const questionData = {
+    cafe: [
+        "조용한 분위기는 어느 쪽이 더 가까운가요?",
+        "좌석이 넓은 곳은 어느 쪽인가요?",
+        "디저트가 더 끌리는 곳은 어디인가요?",
+        "사진 찍기 좋은 곳은 어느 쪽인가요?",
+        "오래 머물기 편한 곳은 어디인가요?",
+        "가격 부담이 적은 곳은 어느 쪽인가요?",
+        "콘센트 사용이 편한 곳은 어디인가요?",
+        "사람이 비교적 적은 곳은 어느 쪽인가요?",
+        "커피 맛이 더 기대되는 곳은 어디인가요?",
+        "가기가 더 편한 곳은 어느 쪽인가요?",
+        "감성적인 분위기가 더 느껴지는 곳은 어디인가요?"
+    ],
+
+    food: [
+        "더 든든하게 먹을 수 있는 곳은 어디인가요?",
+        "분위기가 더 좋은 곳은 어느 쪽인가요?",
+        "가격 부담이 더 적은 곳은 어디인가요?",
+        "웨이팅이 더 적을 것 같은 곳은 어느 쪽인가요?",
+        "혼밥하기 더 편한 곳은 어디인가요?",
+        "양이 더 많을 것 같은 곳은 어느 쪽인가요?",
+        "더 특별한 메뉴가 있는 곳은 어디인가요?",
+        "더 가까운 곳은 어느 쪽인가요?",
+        "인테리어가 더 깔끔한 곳은 어디인가요?",
+        "후기가 더 좋을 것 같은 곳은 어느 쪽인가요?",
+        "오늘 기분 전환에 더 어울리는 곳은 어디인가요?"
+    ],
+
+    travel: [
+        "이동 시간이 더 짧은 곳은 어디인가요?",
+        "자연 풍경이 더 좋은 곳은 어느 쪽인가요?",
+        "맛집이 더 많을 것 같은 곳은 어디인가요?",
+        "액티비티를 더 즐길 수 있는 곳은 어느 쪽인가요?",
+        "사진 찍기 더 좋은 곳은 어디인가요?",
+        "조용히 쉬기 더 좋은 곳은 어느 쪽인가요?",
+        "대중교통이 더 편한 곳은 어디인가요?",
+        "야경이 더 좋은 곳은 어느 쪽인가요?",
+        "쇼핑하기 더 좋은 곳은 어디인가요?",
+        "날씨 영향을 덜 받는 곳은 어느 쪽인가요?",
+        "가성비 좋게 놀기 좋은 곳은 어디인가요?"
+    ],
+
+    study: [
+        "집중이 더 잘 될 것 같은 곳은 어디인가요?",
+        "소음이 더 적은 곳은 어느 쪽인가요?",
+        "오래 앉아 있기 편한 곳은 어디인가요?",
+        "콘센트 사용이 더 편한 곳은 어느 쪽인가요?",
+        "와이파이가 더 잘 될 것 같은 곳은 어디인가요?",
+        "책상이 더 넓은 곳은 어느 쪽인가요?",
+        "음료나 간식 선택지가 더 좋은 곳은 어디인가요?",
+        "사람이 너무 많지 않은 곳은 어느 쪽인가요?",
+        "교통이 더 편한 곳은 어디인가요?",
+        "분위기가 더 깔끔한 곳은 어느 쪽인가요?",
+        "공부 후 쉬기도 좋은 곳은 어디인가요?"
+    ],
+
+    date: [
+        "분위기가 더 예쁜 곳은 어디인가요?",
+        "사진 찍기 더 좋은 곳은 어느 쪽인가요?",
+        "대화하기 더 편한 곳은 어디인가요?",
+        "더 조용하고 편안한 곳은 어느 쪽인가요?",
+        "음식이나 디저트가 더 기대되는 곳은 어디인가요?",
+        "이동하기 더 편한 곳은 어느 쪽인가요?",
+        "더 특별한 느낌이 드는 곳은 어디인가요?",
+        "가격 부담이 더 적은 곳은 어느 쪽인가요?",
+        "오래 머물기 더 좋은 곳은 어디인가요?",
+        "주변에 구경할 곳이 더 많은 곳은 어느 쪽인가요?",
+        "더 기억에 남을 것 같은 곳은 어디인가요?"
+    ]
+};
+
+let questions = [];
+let current = 0;
+let scoreA = 0;
+let scoreB = 0;
+let placeA = "";
+let placeB = "";
+let history = [];
+
+function startGame() {
+    placeA = document.getElementById("placeA").value;
+    placeB = document.getElementById("placeB").value;
+    let category = document.getElementById("category").value;
+
+    if (placeA === "" || placeB === "") {
+        alert("장소 두 개를 모두 입력하세요!");
+        return;
+    }
+
+    questions = questionData[category];
+    current = 0;
+    scoreA = 0;
+    scoreB = 0;
+    history = [];
+
+    document.getElementById("result").innerHTML = "";
+    showQuestion();
+}
+
+function showQuestion() {
+    let percent = ((current + 1) / questions.length) * 100;
+
+    document.getElementById("questionBox").innerHTML = `
+        <div class="progress-text">${current + 1} / ${questions.length}</div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:${percent}%"></div>
+        </div>
+
+        <h2>Q${current + 1}. ${questions[current]}</h2>
+
+        <button class="choice-btn" onclick="chooseA()">🤍 ${placeA}</button>
+        <button class="choice-btn" onclick="chooseB()">💜 ${placeB}</button>
+        <button class="choice-btn neutral-btn" onclick="chooseBoth()">🤝 둘 다 비슷함</button>
+        <button class="back-btn" onclick="goBack()">↩ 이전 선택으로 돌아가기</button>
+    `;
+}
+
+function chooseA() {
+    history.push("A");
+    scoreA++;
+    nextQuestion();
+}
+
+function chooseB() {
+    history.push("B");
+    scoreB++;
+    nextQuestion();
+}
+
+function chooseBoth() {
+    history.push("both");
+    scoreA += 0.5;
+    scoreB += 0.5;
+    nextQuestion();
+}
+
+function goBack() {
+    if (current === 0 || history.length === 0) {
+        alert("이전 선택이 없습니다!");
+        return;
+    }
+
+    current--;
+
+    let last = history.pop();
+
+    if (last === "A") {
+        scoreA--;
+    } else if (last === "B") {
+        scoreB--;
+    } else if (last === "both") {
+        scoreA -= 0.5;
+        scoreB -= 0.5;
+    }
+
+    showQuestion();
+}
+
+function nextQuestion() {
+    current++;
+
+    if (current < questions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    let winner = "";
+    let loser = "";
+    let winnerScore = 0;
+    let loserScore = 0;
+
+    let confidence = Math.round((Math.abs(scoreA - scoreB) / questions.length) * 100);
+
+    if (confidence < 50) {
+        confidence += 50;
+    }
+
+    if (scoreA > scoreB) {
+        winner = placeA;
+        loser = placeB;
+        winnerScore = scoreA;
+        loserScore = scoreB;
+    } else if (scoreB > scoreA) {
+        winner = placeB;
+        loser = placeA;
+        winnerScore = scoreB;
+        loserScore = scoreA;
+    } else {
+        showTieResult();
+        return;
+    }
+
+    document.getElementById("questionBox").innerHTML = "";
+
+    document.getElementById("result").innerHTML = `
+        <div class="winner-card">
+            <div class="result-icon">🏆</div>
+            <h2>오늘의 추천 결과</h2>
+            <h1>${winner}</h1>
+
+            <p class="reason">
+                당신의 선택을 분석한 결과,<br>
+                오늘은 <b>${winner}</b>이 더 잘 어울려요.
+            </p>
+
+            <div class="score-box">
+                <span>${winner}</span>
+                <b>${winnerScore} : ${loserScore}</b>
+                <span>${loser}</span>
+            </div>
+
+            <div class="confidence">
+                📊 추천 확신도<br>
+                <b>${confidence}%</b>
+            </div>
+
+            <p class="reason">
+                ✓ 더 많은 질문에서 선택되었어요.<br>
+                ✓ 현재 취향에 더 가까운 선택지예요.<br>
+                ✓ 오늘의 조건과 더 잘 맞는 결과예요.
+            </p>
+
+            <div class="tag-box">
+                <span>#취향분석</span>
+                <span>#오늘의선택</span>
+                <span>#PickMate</span>
+            </div>
+
+            <button onclick="copyResult()">📋 결과 복사하기</button>
+            <button class="sub-btn" onclick="resetGame()">다시 선택하기</button>
+        </div>
+    `;
+}
+
+function showTieResult() {
+    document.getElementById("questionBox").innerHTML = "";
+
+    document.getElementById("result").innerHTML = `
+        <div class="winner-card">
+            <div class="result-icon">🤝</div>
+            <h2>두 선택지가 비슷해요!</h2>
+
+            <h1>${placeA}</h1>
+            <p class="reason">VS</p>
+            <h1>${placeB}</h1>
+
+            <p class="reason">
+                두 선택지가 같은 점수를 받았어요.<br>
+                오늘 기분에 따라 선택해도 괜찮아요.
+            </p>
+
+            <div class="confidence">
+                📊 추천 확신도<br>
+                <b>50%</b>
+            </div>
+
+            <button class="sub-btn" onclick="randomPick()">🎲 랜덤으로 결정하기</button>
+            <button class="sub-btn" onclick="resetGame()">다시 선택하기</button>
+        </div>
+    `;
+}
+
+function randomPick() {
+    placeA = document.getElementById("placeA").value;
+    placeB = document.getElementById("placeB").value;
+
+    if (placeA === "" || placeB === "") {
+        alert("장소 두 개를 모두 입력하세요!");
+        return;
+    }
+
+    let winner = Math.random() < 0.5 ? placeA : placeB;
+
+    document.getElementById("questionBox").innerHTML = "";
+
+    document.getElementById("result").innerHTML = `
+        <div class="winner-card">
+            <div class="result-icon">🎲</div>
+            <h2>랜덤 추천 결과</h2>
+            <h1>${winner}</h1>
+
+            <p class="reason">
+                고민이 너무 길어질 때는<br>
+                랜덤 선택도 좋은 방법이에요.
+            </p>
+
+            <button onclick="copyResult()">📋 결과 복사하기</button>
+            <button class="sub-btn" onclick="resetGame()">다시 선택하기</button>
+        </div>
+    `;
+}
+
+function copyResult() {
+    let text = document.getElementById("result").innerText;
+    navigator.clipboard.writeText(text);
+    alert("결과가 복사되었습니다!");
+}
+
+function resetGame() {
+    document.getElementById("questionBox").innerHTML = "";
+    document.getElementById("result").innerHTML = "";
+    history = [];
+    current = 0;
+    scoreA = 0;
+    scoreB = 0;
+}
+</script>
+
+</body>
+</html>

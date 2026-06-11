@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>PickMate 마이페이지</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="bg-circle circle1"></div>
+<div class="bg-circle circle2"></div>
+<div class="bg-circle circle3"></div>
+
+<div class="auth-container">
+
+    <div class="logo">✨ PickMate</div>
+
+    <p class="subtitle">
+        내 계정 정보를 관리할 수 있어요
+    </p>
+
+    <div class="info-card">
+        <h3>👤 마이페이지</h3>
+
+        <div class="step">
+            <span>✓</span>
+            현재 로그인 아이디 : {{ user }}
+        </div>
+
+        <div class="step">
+            <span>✏️</span>
+            아이디 / 비밀번호 수정 가능
+        </div>
+
+        <div class="step">
+            <span>🗑</span>
+            회원 탈퇴 가능
+        </div>
+    </div>
+
+    <h2>회원정보 수정</h2>
+
+    <form method="POST" action="/update_user">
+
+        <input
+            type="text"
+            name="new_username"
+            placeholder="새 아이디 입력"
+            required
+        >
+
+        <div class="password-box">
+            <input
+                type="password"
+                id="mypagePassword"
+                name="new_password"
+                placeholder="새 비밀번호 입력"
+                required
+            >
+
+            <span
+                class="toggle-password"
+                onclick="togglePassword('mypagePassword', this)"
+            >
+                👁️
+            </span>
+        </div>
+
+        <button type="submit">
+            회원정보 수정
+        </button>
+
+    </form>
+
+    <form
+        method="POST"
+        action="/delete_user"
+        onsubmit="return confirm('정말 회원 탈퇴하시겠습니까?');"
+    >
+
+        <button
+            type="submit"
+            class="delete-btn"
+        >
+            회원 탈퇴
+        </button>
+
+    </form>
+
+    <button
+        class="sub-btn"
+        onclick="location.href='/'"
+    >
+        메인으로 돌아가기
+    </button>
+
+</div>
+
+<script>
+function togglePassword(id, element) {
+    const input = document.getElementById(id);
+
+    if (input.type === "password") {
+        input.type = "text";
+        element.textContent = "🙈";
+    } else {
+        input.type = "password";
+        element.textContent = "👁️";
+    }
+}
+</script>
+
+</body>
+</html>
